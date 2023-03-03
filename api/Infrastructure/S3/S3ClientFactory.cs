@@ -1,7 +1,7 @@
 using Amazon.S3;
 using Microsoft.Extensions.Options;
 
-namespace API.S3;
+namespace API.Infrastructure.S3;
 
 public class S3ClientFactory : IS3ClientFactory
     {

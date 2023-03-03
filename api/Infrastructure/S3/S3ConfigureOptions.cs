@@ -1,7 +1,7 @@
 using System.Net;
 using Microsoft.Extensions.Options;
 
-namespace API.S3;
+namespace API.Infrastructure.S3;
 
 public class S3ConfigureClientOptions : IConfigureOptions<S3ClientOptions>, IValidateOptions<S3ClientOptions>
 {

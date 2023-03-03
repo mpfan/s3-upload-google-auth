@@ -1,4 +1,4 @@
-namespace API.S3
+namespace API.Infrastructure.S3
 {
     public class S3ClientOptions
     {

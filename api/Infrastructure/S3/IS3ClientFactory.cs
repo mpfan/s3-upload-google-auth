@@ -1,6 +1,6 @@
 using Amazon.S3;
 
-namespace API.S3;
+namespace API.Infrastructure.S3;
 
 public interface IS3ClientFactory
 {

@@ -1,5 +1,5 @@
-using Amazon.S3.Model;
-using API.S3;
+using API.Abstractions;
+using API.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -20,7 +20,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie();
 
-builder.Services.AddS3ClientFactory();
+builder.Services.AddS3FileStorage();
 
 var app = builder.Build();
 
@@ -45,59 +45,22 @@ app.MapGet("/api/login", (HttpContext httpContext, IConfiguration configuration)
     return Results.Challenge(new AuthenticationProperties { RedirectUri = configuration["DOTNET_CLIENT_URL"] });
 });
 
-app.MapGet("/api/files", async (HttpContext httpContext, IConfiguration configuration, IS3ClientFactory s3ClientFactory) =>
+app.MapGet("/api/files", async (HttpContext httpContext, IConfiguration configuration, IFileStorageService storageService) =>
 {
-    var client = s3ClientFactory.GetClient();
-    var files = new List<string>();
-
-    var listObjectRequest = new ListObjectsRequest
-    {
-        BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"]
-
-    };
-
-    ListObjectsResponse listObjectResponse;
-
-    do
-    {
-        listObjectResponse = await client.ListObjectsAsync(listObjectRequest);
-
-        foreach (var obj in listObjectResponse.S3Objects)
-        {
-            files.Add(obj.Key);
-        }
-
-    } while (listObjectResponse.IsTruncated);
+    var files = await storageService.GetFileNames(configuration["DOTNET_MINIO_BUCKET_NAME"]);
 
     return Results.Ok(files);
 });
 
-app.MapGet("api/files/{file}", async (string file, HttpContext httpContext, IConfiguration configuration, IS3ClientFactory s3ClientFactory) => {
-    var client = s3ClientFactory.GetClient();
-    
-    var getObjectRequest = new GetObjectRequest
-    {
-        BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"],
-        Key = file
-    };
+app.MapGet("api/files/{file}", async (string file, HttpContext httpContext, IConfiguration configuration, IFileStorageService storageService) => {
+    var fileStream = await storageService.GetFile(configuration["DOTNET_MINIO_BUCKET_NAME"], file);
 
-    var getObjectResponse = await client.GetObjectAsync(getObjectRequest);
-
-    return Results.File(getObjectResponse.ResponseStream);
+    return Results.File(fileStream);
 });
 
-app.MapPost("/api/files", async (HttpContext httpContext, IConfiguration configuration, IFormFile file, IS3ClientFactory s3ClientFactory) =>
+app.MapPost("/api/files", async (HttpContext httpContext, IConfiguration configuration, IFormFile file, IFileStorageService storageService) =>
 {
-    var client = s3ClientFactory.GetClient();
-
-    var putObjectRequest = new PutObjectRequest
-    {
-        BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"],
-        Key = Path.GetFileName(file.FileName),
-        InputStream = file.OpenReadStream(),
-    };
-
-    await client.PutObjectAsync(putObjectRequest);
+    await storageService.PutFile(configuration["DOTNET_MINIO_BUCKET_NAME"], Path.GetFileName(file.FileName), file.OpenReadStream());
 
     return Results.Ok(Path.GetFileName(file.FileName));
 });
