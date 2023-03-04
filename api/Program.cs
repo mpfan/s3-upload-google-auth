@@ -4,11 +4,12 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Diagnostics;
 using API.Infrastructure;
 using API.Messaging.Requests;
 using API.Behavirous;
 using API.Validators;
-using Microsoft.AspNetCore.Diagnostics;
+using API.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,20 +64,6 @@ app.Map("/Error", (HttpContext httpContext) =>
 
 app.UseAuthentication();
 
-app.Use(async (HttpContext httpContext, RequestDelegate next) =>
-{
-    var IsAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
-
-    if (!IsAuthenticated && !(httpContext.Request.Path == "/api/login"))
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-
-        return;
-    }
-
-    await next(httpContext);
-});
-
 app.MapGet("/api/login", (HttpContext httpContext, IConfiguration configuration) =>
 {
     return Results.Challenge(new AuthenticationProperties { RedirectUri = configuration["DOTNET_CLIENT_URL"] });
@@ -92,7 +79,7 @@ app.MapGet("/api/files", async (HttpContext httpContext, IConfiguration configur
     var files = await mediator.Send(request);
 
     return Results.Ok(files);
-});
+}).RequireAuthenticated();
 
 app.MapGet("api/files/{file}", async (string file, HttpContext httpContext, IConfiguration configuration, IMediator mediator) =>
 {
@@ -105,7 +92,7 @@ app.MapGet("api/files/{file}", async (string file, HttpContext httpContext, ICon
     var fileStream = await mediator.Send(request);
 
     return Results.File(fileStream);
-});
+}).RequireAuthenticated();
 
 app.MapPost("/api/files", async (HttpContext httpContext, IConfiguration configuration, IFormFile file, IMediator mediator) =>
 {
@@ -119,6 +106,6 @@ app.MapPost("/api/files", async (HttpContext httpContext, IConfiguration configu
     await mediator.Send(request);
 
     return Results.Ok(Path.GetFileName(file.FileName));
-});
+}).RequireAuthenticated();
 
 app.Run();
