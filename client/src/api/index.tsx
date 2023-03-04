@@ -4,8 +4,8 @@ export async function getFiles(): Promise<string[]> {
         credentials: 'include'
     });
 
-    if (res.status === 401) {
-        throw new Error("Unauthorized");
+    if(res.status !== 200) {
+        throw new Error(`Request failed with code: ${res.status}`);
     }
 
     const files = await res.json();
@@ -26,6 +26,10 @@ export async function uploadFile(file: File): Promise<string> {
         body: formData,
         credentials: "include"
     });
+
+    if(res.status !== 200) {
+        throw new Error(`Request failed with code: ${res.status}`);
+    }
 
     const uploadedFile = await res.json();
 

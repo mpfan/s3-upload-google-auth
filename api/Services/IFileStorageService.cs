@@ -1,4 +1,4 @@
-namespace API.Abstractions;
+namespace API.Services;
 
 public interface IFileStorageService
 {

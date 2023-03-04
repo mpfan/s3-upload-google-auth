@@ -1,6 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using API.Abstractions;
+using API.Services;
 using API.Infrastructure.S3;
 
 namespace API.Infrastructure;

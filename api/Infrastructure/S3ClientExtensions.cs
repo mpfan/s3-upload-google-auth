@@ -1,4 +1,4 @@
-using API.Abstractions;
+using API.Services;
 using API.Infrastructure.S3;
 
 namespace API.Infrastructure;

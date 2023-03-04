@@ -21,7 +21,7 @@ public class S3ConfigureClientOptions : IConfigureOptions<S3ClientOptions>, IVal
 
         // Need to resolve to ip to fix service not found
         var originalServiceUrl = _configuration["DOTNET_MINIO_SERVICE_URL"];
-        var serviceURL = getServiceIP(_configuration["DOTNET_MINIO_SERVICE_URL"]);
+        var serviceURL = GetServiceIP(_configuration["DOTNET_MINIO_SERVICE_URL"]);
 
         _logger.LogInformation("{originalServiceUrl} resolved to {serviceUrl}", originalServiceUrl, serviceURL);
 
@@ -52,7 +52,7 @@ public class S3ConfigureClientOptions : IConfigureOptions<S3ClientOptions>, IVal
         return ValidateOptionsResult.Success;
     }
 
-    private static string getServiceIP(string orginalServiceURL)
+    private static string GetServiceIP(string orginalServiceURL)
     {
         var originalUri = new Uri(orginalServiceURL);
 

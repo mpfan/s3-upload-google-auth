@@ -5,6 +5,7 @@ services:
     command: dotnet watch run
     volumes:
       - ./api:/usr/app
+      - ./api/logs:/logs
     networks:
       - s3-upload-network
     ports:
