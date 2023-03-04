@@ -16,12 +16,12 @@ public class S3ConfigureClientOptions : IConfigureOptions<S3ClientOptions>, IVal
 
     public void Configure(S3ClientOptions options)
     {
-        options.AccessKey = _configuration["DOTNET_MINIO_ACCESS_KEY"];
-        options.AccessSecret = _configuration["DOTNET_MINIO_SECRET_KEY"];
+        options.AccessKey = _configuration["DOTNET_MINIO_ACCESS_KEY"] ?? throw new ArgumentNullException("Access Key is null");
+        options.AccessSecret = _configuration["DOTNET_MINIO_SECRET_KEY"] ?? throw new ArgumentNullException("Access Secret is null");
 
         // Need to resolve to ip to fix service not found
-        var originalServiceUrl = _configuration["DOTNET_MINIO_SERVICE_URL"];
-        var serviceURL = GetServiceIP(_configuration["DOTNET_MINIO_SERVICE_URL"]);
+        var originalServiceUrl = _configuration["DOTNET_MINIO_SERVICE_URL"] ?? throw new ArgumentNullException("Service Url is null");
+        var serviceURL = GetServiceIP(originalServiceUrl);
 
         _logger.LogInformation("{originalServiceUrl} resolved to {serviceUrl}", originalServiceUrl, serviceURL);
 

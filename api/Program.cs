@@ -23,8 +23,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddGoogle(options =>
 {
-    options.ClientId = builder.Configuration["DOTNET_CLIENT_ID"];
-    options.ClientSecret = builder.Configuration["DOTNET_CLIENT_SECRET"];
+    options.ClientId = builder.Configuration["DOTNET_CLIENT_ID"] ?? throw new ArgumentNullException("Client Id is null");
+    options.ClientSecret = builder.Configuration["DOTNET_CLIENT_SECRET"] ?? throw new ArgumentNullException("Client Secret is null");
     options.CallbackPath = new PathString(builder.Configuration["DOTNET_CALLBACK_PATH"]);
 })
 .AddCookie();

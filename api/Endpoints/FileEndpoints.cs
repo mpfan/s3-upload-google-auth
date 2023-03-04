@@ -17,7 +17,7 @@ public static class FileEndpoints
     {
         var request = new GetFileRequest
         {
-            BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"] ?? throw new Exception("No bucket name set in configuration"),
+            BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"] ?? throw new ArgumentNullException("No bucket name set in configuration"),
             Key = file
         };
 
@@ -30,7 +30,7 @@ public static class FileEndpoints
     {
         var request = new ListFileNamesRequest
         {
-            BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"] ?? throw new Exception("No bucket name set in configuration")
+            BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"] ?? throw new ArgumentNullException("No bucket name set in configuration")
         };
 
         var files = await mediator.Send(request);
@@ -42,7 +42,7 @@ public static class FileEndpoints
     {
         var request = new PutFileRequest
         {
-            BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"] ?? throw new Exception("No bucket name set in configuration"),
+            BucketName = configuration["DOTNET_MINIO_BUCKET_NAME"] ?? throw new ArgumentNullException("No bucket name set in configuration"),
             Key = Path.GetFileName(file.FileName),
             File = file.OpenReadStream()
         };
